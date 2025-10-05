@@ -6,6 +6,7 @@ from customer.models import Customer
 from .serializers import InvoiceSerializer
 from invoice.models import Invoice, InvoiceItem
 from rest_framework.permissions import AllowAny
+from transaction.models import Transaction
 
 
 
@@ -90,3 +91,31 @@ class InvoiceDetailApiView(APIView):
 
         serializer = InvoiceSerializer(invoice)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class InvoicePaymentApiView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        reference = request.data.get('reference')
+        if not reference:
+            return Response({"Error":"Invoice Reffernce is required"}, status= status.HTTP_400_BAD_REQUEST)
+        try:
+            invoice = Invoice.objects.get(reference = reference)
+        except Invoice.DoesNotExist:
+            return Response({"Error":"Invoice are not available"}, status= status.HTTP_400_BAD_REQUEST)
+        
+        if invoice.status != "Pending":
+            return Response({"Error":"Invoice already {invoice.status}"}, status= status.HTTP_400_BAD_REQUEST)
+        
+        invoice.status = "Paid"
+        invoice.save(update_fields=["status"])
+
+        Transaction.objects.create(
+             invoice=invoice,
+             type="Payment",
+             amount=invoice.total_amount
+         )
+        return Response({"message": f"Invoice {invoice.reference} has been paid successfully"}, status=status.HTTP_200_OK)
+
+
