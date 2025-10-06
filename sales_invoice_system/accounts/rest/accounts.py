@@ -4,11 +4,14 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from drf_yasg.utils import swagger_auto_schema
 
 
 
 class Registerview(APIView):
     permission_classes = [AllowAny]
+
+    @swagger_auto_schema(request_body=RegisterSerializer)
     def post(self, request):
         serializer = RegisterSerializer(data = request.data)
         if serializer.is_valid():

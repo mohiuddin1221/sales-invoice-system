@@ -23,3 +23,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
         model = Invoice
         fields = ["id", "reference", "customer", "status", "total_amount", "items", "created_at"]
         read_only_fields = ["total_amount", "status", "created_at"]
+
+
+
+
+class InvoicePaymentSerializer(serializers.Serializer):
+    reference = serializers.CharField(max_length=100)

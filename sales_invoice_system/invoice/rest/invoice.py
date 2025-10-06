@@ -3,11 +3,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from customer.models import Customer
-from .serializers import InvoiceSerializer
+from .serializers import InvoiceSerializer, InvoicePaymentSerializer
 from invoice.models import Invoice, InvoiceItem
 from rest_framework.permissions import AllowAny
 from transaction.models import Transaction
 from rest_framework.permissions import IsAuthenticated
+from drf_yasg.utils import swagger_auto_schema
 
 
 
@@ -20,6 +21,7 @@ def generate_reference():
 class InvoiceCreateApiView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(request_body=InvoiceSerializer)
     def post(self, request):
         data = request.data
         items_data = data.get("items", [])
@@ -98,10 +100,14 @@ class InvoiceDetailApiView(APIView):
 
 class InvoicePaymentApiView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(request_body=InvoicePaymentSerializer)
     def post(self, request):
-        reference = request.data.get('reference')
-        if not reference:
-            return Response({"Error":"Invoice Reffernce is required"}, status= status.HTTP_400_BAD_REQUEST)
+        serializer = InvoicePaymentSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        reference = serializer.validated_data['reference']
         try:
             invoice = Invoice.objects.get(reference = reference)
         except Invoice.DoesNotExist:

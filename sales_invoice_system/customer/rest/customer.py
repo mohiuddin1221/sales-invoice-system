@@ -2,15 +2,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from customer.models import Customer
-from .serializers import CustomerSerializer
+from .serializers import CustomerSerializer,CustomerCreateSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
+from drf_yasg.utils import swagger_auto_schema
 
 
 class CustomerCreateView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(request_body=CustomerCreateSerializer)
     def post(self, request):
-        serializer = CustomerSerializer(data=request.data)
+        serializer = CustomerCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
