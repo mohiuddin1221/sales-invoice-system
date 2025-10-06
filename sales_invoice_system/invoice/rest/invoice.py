@@ -7,6 +7,8 @@ from .serializers import InvoiceSerializer
 from invoice.models import Invoice, InvoiceItem
 from rest_framework.permissions import AllowAny
 from transaction.models import Transaction
+from rest_framework.permissions import IsAuthenticated
+
 
 
 
@@ -16,7 +18,7 @@ def generate_reference():
 
 
 class InvoiceCreateApiView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         data = request.data
@@ -71,7 +73,7 @@ class InvoiceCreateApiView(APIView):
 
 
 class InvoiceListApiView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         invoices = Invoice.objects.all().order_by("-created_at")  # latest first
@@ -81,7 +83,7 @@ class InvoiceListApiView(APIView):
 
 
 class InvoiceDetailApiView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, reference):
         try:
@@ -95,7 +97,7 @@ class InvoiceDetailApiView(APIView):
 
 
 class InvoicePaymentApiView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         reference = request.data.get('reference')
         if not reference:

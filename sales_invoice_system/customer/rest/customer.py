@@ -4,9 +4,11 @@ from rest_framework import status
 from customer.models import Customer
 from .serializers import CustomerSerializer
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
+
 
 class CustomerCreateView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = CustomerSerializer(data=request.data)
         if serializer.is_valid():
@@ -20,7 +22,7 @@ class CustomerCreateView(APIView):
 
 
 class CustomerListView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         customers = Customer.objects.all()
